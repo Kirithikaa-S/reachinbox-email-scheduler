@@ -6,7 +6,7 @@ export const EMAIL_INDEX = 'emails';
 
 export const esClient = new Client({ node: env.ELASTICSEARCH_URL });
 
-let esAvailable = true;
+let esAvailable = false;
 
 export async function ensureEmailIndex(): Promise<void> {
   try {

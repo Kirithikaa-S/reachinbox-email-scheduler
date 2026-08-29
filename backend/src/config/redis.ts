@@ -7,11 +7,16 @@ export function getRedisOptions(): RedisOptions {
   const options: RedisOptions = {
     maxRetriesPerRequest: null,
     enableReadyCheck: false,
-    keepAlive: 10000,
+    family: 4,
+    keepAlive: 5000,
     connectTimeout: 10000,
     retryStrategy(times) {
       const delay = Math.min(times * 200, 2000);
       return delay;
+    },
+    reconnectOnError(err) {
+      const targetErrors = ['READONLY', 'ECONNRESET', 'ETIMEDOUT', 'EPIPE'];
+      return targetErrors.some((target) => err.message.includes(target));
     },
   };
 
@@ -39,7 +44,17 @@ export function createRedisClient(): IORedis {
     });
   }
 
-  client.on('error', (err) => {
+  client.on('error', (err: Error) => {
+    // Transient socket resets from serverless idle pruning are handled automatically by ioredis
+    if (
+      err.message.includes('ECONNRESET') ||
+      err.message.includes('EPIPE') ||
+      err.message.includes('ETIMEDOUT')
+    ) {
+      // eslint-disable-next-line no-console
+      console.warn('[redis] transient idle socket reset (reconnecting automatically)...');
+      return;
+    }
     // eslint-disable-next-line no-console
     console.error('[redis] connection error:', err.message);
   });
@@ -47,6 +62,22 @@ export function createRedisClient(): IORedis {
   return client;
 }
 
+let heartbeatTimer: NodeJS.Timeout | null = null;
+
+export function startRedisHeartbeat(client: IORedis): void {
+  if (heartbeatTimer) return;
+  heartbeatTimer = setInterval(() => {
+    if (client.status === 'ready') {
+      client.ping().catch(() => {});
+    }
+  }, 15000);
+
+  if (heartbeatTimer.unref) {
+    heartbeatTimer.unref();
+  }
+}
+
 // BullMQ requires maxRetriesPerRequest: null on the connection it manages.
 export const redisConnection = createRedisClient();
+startRedisHeartbeat(redisConnection);
 
