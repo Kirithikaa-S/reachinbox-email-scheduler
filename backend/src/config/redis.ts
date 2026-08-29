@@ -10,6 +10,7 @@ export function getRedisOptions(): RedisOptions {
     family: 4,
     keepAlive: 5000,
     connectTimeout: 10000,
+    commandTimeout: 3000,
     retryStrategy(times) {
       const delay = Math.min(times * 200, 2000);
       return delay;
