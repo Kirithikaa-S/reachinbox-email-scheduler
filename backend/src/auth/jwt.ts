@@ -18,10 +18,11 @@ export function verifyToken(token: string): JwtPayload {
 }
 
 export function setAuthCookie(res: Response, token: string): void {
+  const isProduction = env.NODE_ENV === 'production';
   res.cookie(AUTH_COOKIE_NAME, token, {
     httpOnly: true,
-    secure: env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    secure: isProduction,
+    sameSite: isProduction ? 'none' : 'lax',
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 }
