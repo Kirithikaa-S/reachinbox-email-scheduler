@@ -19,7 +19,7 @@ router.get('/', async (_req: Request, res: Response) => {
 
   const [mysqlResult, redisResult] = await Promise.allSettled([
     withTimeout(prisma.$queryRaw`SELECT 1`, 2000),
-    withTimeout(redisConnection.ping(), 2000),
+    withTimeout(redisConnection.ping(), 3500),
   ]);
 
   status.mysql = mysqlResult.status === 'fulfilled' ? 'ok' : 'error';

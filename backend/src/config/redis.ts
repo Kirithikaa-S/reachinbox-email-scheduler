@@ -2,6 +2,18 @@ import IORedis, { RedisOptions } from 'ioredis';
 import { env } from './env';
 
 export function getRedisOptions(): RedisOptions {
+  let servername: string | undefined;
+  if (env.REDIS_URL) {
+    try {
+      const u = new URL(env.REDIS_URL);
+      servername = u.hostname;
+    } catch {
+      // ignore
+    }
+  } else {
+    servername = env.REDIS_HOST;
+  }
+
   const isTls = env.REDIS_TLS || (env.REDIS_URL ? env.REDIS_URL.startsWith('rediss://') : false);
 
   const options: RedisOptions = {
@@ -10,7 +22,6 @@ export function getRedisOptions(): RedisOptions {
     family: 4,
     keepAlive: 5000,
     connectTimeout: 10000,
-    commandTimeout: 3000,
     retryStrategy(times) {
       const delay = Math.min(times * 200, 2000);
       return delay;
@@ -24,6 +35,7 @@ export function getRedisOptions(): RedisOptions {
   if (isTls) {
     options.tls = {
       rejectUnauthorized: false,
+      servername,
     };
   }
 
