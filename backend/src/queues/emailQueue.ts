@@ -1,4 +1,4 @@
-import { Queue, QueueEvents } from 'bullmq';
+import { Queue } from 'bullmq';
 import { redisConnection } from '../config/redis';
 
 export const EMAIL_QUEUE_NAME = 'send-email';
@@ -11,10 +11,6 @@ export const emailQueue = new Queue(EMAIL_QUEUE_NAME, {
     removeOnComplete: { age: 60 * 60 * 24 * 7, count: 5000 },
     removeOnFail: { age: 60 * 60 * 24 * 30 },
   },
-});
-
-export const emailQueueEvents = new QueueEvents(EMAIL_QUEUE_NAME, {
-  connection: redisConnection,
 });
 
 /**
