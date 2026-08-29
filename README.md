@@ -463,3 +463,10 @@ much as is reasonably possible without a distributed priority queue.
 - **Elasticsearch search returns nothing**: confirm
   `curl http://localhost:9200` responds; the app degrades gracefully but
   obviously can't search if ES is down.
+## Running the Project
+
+### Backend
+```bash
+cd backend
+npm install
+npm run dev
