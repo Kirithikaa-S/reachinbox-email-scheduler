@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import multer from 'multer';
 import { requireAuth } from '../auth/jwt';
 import { asyncHandler } from '../middleware/errorHandler';
@@ -20,7 +20,7 @@ router.use(requireAuth);
 // POST /api/emails/schedule
 router.post(
   '/schedule',
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const input = scheduleEmailSchema.parse({
       ...req.body,
       delayMs: req.body.delayMs !== undefined ? Number(req.body.delayMs) : undefined,
@@ -45,7 +45,7 @@ router.post(
 // GET /api/emails/scheduled
 router.get(
   '/scheduled',
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const emails = await prisma.scheduledEmail.findMany({
       where: {
         campaign: { userId: req.userId! },
@@ -61,7 +61,7 @@ router.get(
 // GET /api/emails/sent
 router.get(
   '/sent',
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const emails = await prisma.scheduledEmail.findMany({
       where: {
         campaign: { userId: req.userId! },
@@ -77,7 +77,7 @@ router.get(
 // GET /api/emails/search?q=
 router.get(
   '/search',
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const q = (req.query.q as string) ?? '';
     const results = await searchEmails({ userId: req.userId!, query: q });
     res.json({ success: true, data: results });
@@ -87,7 +87,7 @@ router.get(
 // GET /api/emails/:id
 router.get(
   '/:id',
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const email = await prisma.scheduledEmail.findFirst({
       where: { id: req.params.id, campaign: { userId: req.userId! } },
     });
@@ -100,7 +100,7 @@ router.get(
 router.post(
   '/parse-upload',
   upload.single('file'),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response) => {
     if (!req.file) throw new AppError('No file uploaded', 400);
     const content = req.file.buffer.toString('utf-8');
     const emails = extractEmailsFromText(content);

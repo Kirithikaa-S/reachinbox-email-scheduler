@@ -1,11 +1,11 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { prisma } from '../config/prisma';
 import { redisConnection } from '../config/redis';
 import { esClient } from '../elasticsearch/emailIndex';
 
 const router = Router();
 
-router.get('/', async (_req, res) => {
+router.get('/', async (_req: Request, res: Response) => {
   const status = { api: 'ok', mysql: 'ok', redis: 'ok', elasticsearch: 'ok' };
 
   try {

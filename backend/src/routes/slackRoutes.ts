@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { requireAuth } from '../auth/jwt';
 import { asyncHandler } from '../middleware/errorHandler';
 import { env } from '../config/env';
@@ -17,7 +17,7 @@ const router = Router();
 router.get(
   '/connect',
   requireAuth,
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response) => {
     // Encode the user id into `state` so the callback (which Slack calls
     // without our cookies necessarily round-tripping in all browsers) can
     // still identify who is connecting.
@@ -29,7 +29,7 @@ router.get(
 // GET /api/slack/callback - Slack redirects here after user authorizes
 router.get(
   '/callback',
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const { code, state } = req.query as { code?: string; state?: string };
     if (!code || !state) throw new AppError('Missing code/state from Slack', 400);
 
@@ -52,7 +52,7 @@ router.get(
 router.post(
   '/disconnect',
   requireAuth,
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response) => {
     await disconnectSlackForUser(req.userId!);
     res.json({ success: true, data: { disconnected: true } });
   })
@@ -62,7 +62,7 @@ router.post(
 router.get(
   '/status',
   requireAuth,
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const status = await getSlackStatus(req.userId!);
     res.json({ success: true, data: status });
   })

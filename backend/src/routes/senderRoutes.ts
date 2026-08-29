@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { requireAuth } from '../auth/jwt';
 import { asyncHandler } from '../middleware/errorHandler';
 import { prisma } from '../config/prisma';
@@ -16,7 +16,7 @@ const createSenderSchema = z.object({
 
 router.get(
   '/',
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const senders = await prisma.sender.findMany({
       where: { userId: req.userId! },
       select: { id: true, email: true, name: true, createdAt: true },
@@ -27,7 +27,7 @@ router.get(
 
 router.post(
   '/',
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const input = createSenderSchema.parse(req.body);
     const sender = await prisma.sender.create({
       data: { ...input, userId: req.userId! },

@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import passport from '../auth/passport';
 import { signToken, setAuthCookie, clearAuthCookie, requireAuth } from '../auth/jwt';
 import { prisma } from '../config/prisma';
@@ -16,7 +16,7 @@ router.get('/google', passport.authenticate('google', {
 router.get(
   '/google/callback',
   passport.authenticate('google', { session: false, failureRedirect: `${env.FRONTEND_URL}/login?error=oauth_failed` }),
-  (req, res) => {
+  (req: Request, res: Response) => {
     const user = req.user as User;
     const token = signToken(user.id);
     setAuthCookie(res, token);
@@ -40,7 +40,7 @@ router.get(
   })
 );
 
-router.post('/logout', (_req, res) => {
+router.post('/logout', (_req: Request, res: Response) => {
   clearAuthCookie(res);
   res.json({ success: true, data: { loggedOut: true } });
 });
