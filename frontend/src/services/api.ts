@@ -8,6 +8,15 @@ import type {
 
 export const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:5000/api';
 
+const getFrontendOrigin = (): string => {
+  if (typeof window !== 'undefined' && window.location?.origin) {
+    return window.location.origin;
+  }
+  return import.meta.env.PROD
+    ? 'https://frontend-seven-tau-86.vercel.app'
+    : 'http://localhost:5173';
+};
+
 class ApiError extends Error {
   status: number;
   constructor(message: string, status: number) {
@@ -40,7 +49,8 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 export const api = {
   me: () => request<User>('/auth/me'),
   logout: () => request<{ loggedOut: boolean }>('/auth/logout', { method: 'POST' }),
-  googleLoginUrl: () => `${API_URL}/auth/google`,
+  googleLoginUrl: () =>
+    `${API_URL}/auth/google?returnTo=${encodeURIComponent(getFrontendOrigin())}`,
 
   scheduledEmails: () => request<ScheduledEmail[]>('/emails/scheduled'),
   sentEmails: () => request<ScheduledEmail[]>('/emails/sent'),

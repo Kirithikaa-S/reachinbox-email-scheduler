@@ -20,7 +20,18 @@ export function createApp(): Application {
   app.use(helmet());
   app.use(
     cors({
-      origin: env.FRONTEND_URL,
+      origin: (origin, callback) => {
+        if (!origin) return callback(null, true);
+        const allowed = [
+          env.FRONTEND_URL,
+          'http://localhost:5173',
+          'https://frontend-seven-tau-86.vercel.app',
+        ];
+        if (allowed.includes(origin) || origin.endsWith('.vercel.app')) {
+          return callback(null, true);
+        }
+        return callback(null, true);
+      },
       credentials: true,
     })
   );
